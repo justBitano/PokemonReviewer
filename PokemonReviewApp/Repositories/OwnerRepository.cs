@@ -14,6 +14,18 @@ namespace PokemonReviewApp.Repositories
             this.mapper = mapper;
         }
 
+        public bool CreateOwner(int countryId, Owner owner)
+        {
+            var country = dataContext.Countries.FirstOrDefault(c => c.Id == countryId);
+            if (country == null)
+            {
+                return false;
+            }
+            owner.Country = country;
+            dataContext.Add(owner);
+            return Save();
+        }
+
         public Owner GetOwner(int ownerId)
         {
             return dataContext.Owners.Where(o => o.Id == ownerId).FirstOrDefault();
@@ -38,6 +50,12 @@ namespace PokemonReviewApp.Repositories
         public bool OwnerExists(int ownerId)
         {
             return dataContext.Owners.Any(o => o.Id == ownerId);
+        }
+
+        public bool Save()
+        {
+           var saved = dataContext.SaveChanges();
+            return saved > 0 ? true : false;
         }
     }
 }

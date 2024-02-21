@@ -4,6 +4,7 @@ using PokemonReviewApp.DTO;
 using PokemonReviewApp.Interfaces;
 using PokemonReviewApp.Models;
 using System.Collections.Generic;
+using System.Net;
 
 namespace PokemonReviewApp.Controllers
 {
@@ -13,10 +14,12 @@ namespace PokemonReviewApp.Controllers
     {
         private readonly IOwnerRepository _repository;
         private readonly IMapper mapper;
-        public OwnerController(IOwnerRepository _repository, IMapper mapper)
+        private readonly ICountryRepository countryRepository;
+        public OwnerController(IOwnerRepository _repository, IMapper mapper, ICountryRepository countryRepository)
         {
             this._repository = _repository;
             this.mapper = mapper;
+            this.countryRepository = countryRepository;
         }
 
 
@@ -65,7 +68,30 @@ namespace PokemonReviewApp.Controllers
             }
             return Ok(pokemon);
         }
+        [HttpPost]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        public IActionResult CreateOwner([FromQuery] int countryId, [FromBody] OwnerDTO model)
+        {
+            if (model == null)
+            {
+                return BadRequest("All field is required.");
 
+            }
+            var countries = countryRepository.GetCountry(countryId);
+            if(countries == null)
+            {
+                return NotFound("Not found this country");
+            }
+            
+            var ownerMap = mapper.Map<Owner>(model);
+            var owner = _repository.CreateOwner(countryId,ownerMap);
+            if (!owner)
+            {
+                return BadRequest("Something went wrong while saving.");
+            }
+            return Ok("Successfully created.");
+        }
 
     }
 }

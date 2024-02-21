@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using PokemonReviewApp.Data;
 using PokemonReviewApp.Interfaces;
 using PokemonReviewApp.Models;
@@ -12,6 +13,20 @@ namespace PokemonReviewApp.Repositories
         public ReviewRepository(DataContext dataContext, IMapper mapper) { 
             this.dataContext = dataContext;
             this.mapper = mapper;
+        }
+
+        public bool CreateReview(int reviewerId, int pokeId, Review review)
+        {
+            var reviewer = dataContext.Reviewers.FirstOrDefault(x => x.Id == reviewerId);
+            var poke = dataContext.Pokemons.FirstOrDefault(x => x.Id == pokeId);
+            if (review == null || poke  == null)
+            {
+                return false;
+            }
+            review.Reviewer = reviewer;
+            review.Pokemon = poke;
+            dataContext.Add(review);
+            return Save();
         }
 
         public Review GetReview(int reviewId)
@@ -32,6 +47,12 @@ namespace PokemonReviewApp.Repositories
         public bool ReviewExists(int id)
         {
            return dataContext.Reviews.Any(o => o.Id == id);
+        }
+
+        public bool Save()
+        {
+            var saved = dataContext.SaveChanges();
+            return saved > 0 ? true : false;
         }
     }
 }

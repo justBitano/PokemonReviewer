@@ -40,7 +40,7 @@ namespace PokemonReviewApp.Controllers
             {
                 return NotFound();
             }
-            var list = mapper.Map<OwnerDTO>(_repository.GetReview(reviewId));
+            var list = mapper.Map<ReviewDTO>(_repository.GetReview(reviewId));
             if (!ModelState.IsValid)
             {
                 return BadRequest();
@@ -48,8 +48,8 @@ namespace PokemonReviewApp.Controllers
             return Ok(list);
         }
 
-        [HttpGet("/pokemon/{pokeId}")]
-        [ProducesResponseType(200, Type = typeof(Review))]
+        [HttpGet("{pokeId}/pokemon")]
+        [ProducesResponseType(200, Type = typeof(List<Review>))]
         [ProducesResponseType(400)]
         public IActionResult GetReviewsForAPokemon(int pokeId)
         {
@@ -61,7 +61,24 @@ namespace PokemonReviewApp.Controllers
             return Ok(list);
         }
 
+        [HttpPost]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        public IActionResult CreateReview([FromQuery]int reviewerId, [FromQuery] int pokeId,[FromBody] ReviewDTO model)
+        {
+            if(model == null)
+            {
+                return BadRequest(ModelState);
 
+            }
+            var reviewMap = mapper.Map<Review>(model);
+            var pokemon = _repository.CreateReview(reviewerId, pokeId, reviewMap);
+            if (!pokemon)
+            {
+                return StatusCode(500, "Something went wrong while saving."); 
+            }
+            return Ok("Successfully created.");
+        }
 
     }
 }

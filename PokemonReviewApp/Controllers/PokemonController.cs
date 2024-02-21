@@ -14,13 +14,16 @@ namespace PokemonReviewApp.Controllers
     public class PokemonController : Controller
     {
         private readonly IPokemonRepository _repository;
+        private readonly IOwnerRepository _ownerRepository;
         private readonly DataContext dataContext;
         private readonly IMapper mapper;
-        public PokemonController(IPokemonRepository pokemonRepository, DataContext dataContext, IMapper  mapper) 
+        public PokemonController(IPokemonRepository pokemonRepository, DataContext dataContext, IMapper  mapper
+            , IOwnerRepository ownerRepository) 
         {
             this._repository = pokemonRepository;
             this.dataContext = dataContext;
             this.mapper = mapper;
+            this._ownerRepository = ownerRepository;
         }
 
         [HttpGet]
@@ -69,5 +72,34 @@ namespace PokemonReviewApp.Controllers
             return Ok(ratting);
 
         }
-    }
+
+        [HttpPost]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        public IActionResult CreatePokemon([FromQuery] int ownerId, [FromQuery] int catId ,[FromBody] PokemonDTO pokemon)
+        {
+            if(pokemon == null)
+            {
+                return BadRequest(ModelState);
+            }
+            var listPokemon = _repository.GetPokemons().Where(c => c.Name.Trim().ToUpper() == pokemon.Name.TrimEnd().ToUpper()).FirstOrDefault();
+            if( listPokemon != null)
+            {
+                return BadRequest("This pokemon already exist.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var pokemonMap = mapper.Map<Pokemon>(pokemon); 
+
+            if(!_repository.CreatePokemon(ownerId, catId, pokemonMap))
+            {
+                ModelState.AddModelError("", "Something went wrong while saving.");
+                return StatusCode(500, ModelState); 
+            }
+            return Ok("Successfully created.");
+        }
+    }   
 }

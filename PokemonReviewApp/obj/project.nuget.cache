@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "vW59JZO8c8thPlJILpJCKcW/NTBtcliNjDfLpgm9/S3sCWo8Q9icO/EIyP8gGMR4ttluZCxyMnAn3UTTp/PY9A==",
+  "dgSpecHash": "OIri6CgE5WaGyNScoXyY9JPB3kq2BkPGWWLZMYMgmy7fTE+RdiI71kfhr6fnnhCONZYp0tDqV2HmrYPlXkwaxg==",
   "success": true,
-  "projectFilePath": "D:\\ASP NET\\ASP NET Core\\PokemonReviewAPI\\PokemonReviewApp\\PokemonReviewApp\\PokemonReviewApp.csproj",
+  "projectFilePath": "D:\\ASP NET\\ASP NET Web API\\PokemonReviewAPI\\PokemonReviewApp\\PokemonReviewApp\\PokemonReviewApp.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Bitano\\.nuget\\packages\\automapper\\13.0.1\\automapper.13.0.1.nupkg.sha512",
     "C:\\Users\\Bitano\\.nuget\\packages\\humanizer.core\\2.8.26\\humanizer.core.2.8.26.nupkg.sha512",

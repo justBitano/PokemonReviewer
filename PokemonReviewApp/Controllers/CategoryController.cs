@@ -47,8 +47,8 @@ namespace PokemonReviewApp.Controllers
             return Ok(list);
         }
 
-        [HttpGet("/pokemon/{categoryId}")]
-        [ProducesResponseType(200, Type = typeof(IEnumerable<Category>))]
+        [HttpGet("{categoryId}/pokemon")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<Pokemon>))]
         [ProducesResponseType(400)]
         public IActionResult GetPokemonByCategoryId(int categoryId)
         {
@@ -59,6 +59,32 @@ namespace PokemonReviewApp.Controllers
                 return BadRequest();
             }
             return Ok(pokemon);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        public IActionResult CreateCategory([FromBody] CategoryDTO model)
+        {
+            if (model == null)
+            {
+                return BadRequest(ModelState);
+
+            }
+            var categories = _repository.GetCategories().Where(c => c.Name.Trim().ToUpper() ==  model.Name.Trim().ToUpper()).FirstOrDefault();
+            if(categories != null)
+            {
+                ModelState.AddModelError("", "This category already exists.");
+                return StatusCode(442, ModelState);
+            }
+            var reviewerMap = mapper.Map<Category>(model);
+            var reviewer = _repository.CreateCategory(reviewerMap);
+            if (!reviewer)
+            {
+                ModelState.AddModelError("", "Something went wrong while saving.");
+                return StatusCode(500, ModelState);
+            }
+            return Ok("Successfully created.");
         }
 
     }

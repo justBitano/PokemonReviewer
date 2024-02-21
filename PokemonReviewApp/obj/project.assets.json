@@ -2263,11 +2263,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\ASP NET\\ASP NET Core\\PokemonReviewAPI\\PokemonReviewApp\\PokemonReviewApp\\PokemonReviewApp.csproj",
+      "projectUniqueName": "D:\\ASP NET\\ASP NET Web API\\PokemonReviewAPI\\PokemonReviewApp\\PokemonReviewApp\\PokemonReviewApp.csproj",
       "projectName": "PokemonReviewApp",
-      "projectPath": "D:\\ASP NET\\ASP NET Core\\PokemonReviewAPI\\PokemonReviewApp\\PokemonReviewApp\\PokemonReviewApp.csproj",
+      "projectPath": "D:\\ASP NET\\ASP NET Web API\\PokemonReviewAPI\\PokemonReviewApp\\PokemonReviewApp\\PokemonReviewApp.csproj",
       "packagesPath": "C:\\Users\\Bitano\\.nuget\\packages\\",
-      "outputPath": "D:\\ASP NET\\ASP NET Core\\PokemonReviewAPI\\PokemonReviewApp\\PokemonReviewApp\\obj\\",
+      "outputPath": "D:\\ASP NET\\ASP NET Web API\\PokemonReviewAPI\\PokemonReviewApp\\PokemonReviewApp\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Bitano\\AppData\\Roaming\\NuGet\\NuGet.Config",
