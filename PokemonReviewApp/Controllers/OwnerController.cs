@@ -93,5 +93,56 @@ namespace PokemonReviewApp.Controllers
             return Ok("Successfully created.");
         }
 
+        [HttpPut("{ownerId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public IActionResult UpdateCountry(int ownerId, [FromBody] OwnerDTO model)
+        {
+            if (model == null)
+            {
+                return StatusCode(400, "Something wrong with category.");
+            }
+            if (ownerId != model.Id)
+            {
+                return BadRequest("Not same id country.");
+            }
+            if (!_repository.OwnerExists(ownerId))
+            {
+                return StatusCode(404, "Not found country.");
+            }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var result = mapper.Map<Owner>(model);
+            if (!_repository.UpdateOwner(result))
+            {
+                return StatusCode(500, "Something went wrong.");
+            }
+            return NoContent();
+        }
+
+        [HttpDelete("{ownerId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(200)]
+        public IActionResult DeleteCountry(int ownerId)
+        {
+            var owner = _repository.GetOwner(ownerId);
+            if (owner == null)
+            {
+                return NotFound("Dont have this owner Id");
+            }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            if (!_repository.DeleteOwner(ownerId))
+            {
+                return StatusCode(500, "Something went wrong.");
+            }
+            return Ok("Deleted successfully");
+        }
+
     }
 }

@@ -83,7 +83,7 @@ namespace PokemonReviewApp.Controllers
         {
             if (model == null)
             {
-                return BadRequest(ModelState);
+                return StatusCode(400, "This field is required.");
 
             }
             var countries = _repository.GetCountries().Where(c => c.Name.Trim().ToUpper() == model.Name.TrimEnd().ToUpper()).FirstOrDefault();
@@ -98,6 +98,57 @@ namespace PokemonReviewApp.Controllers
                 return StatusCode(500, "Something went wrong while saving.");
             }
             return Ok("Successfully created.");
+        }
+
+        [HttpPut("{countryId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public IActionResult UpdateCountry(int countryId, [FromBody] CountryDTO country)
+        {
+            if (country == null)
+            {
+                return StatusCode(400, "Something wrong with category.");
+            }
+            if (countryId != country.Id)
+            {
+                return BadRequest("Not same id country.");
+            }
+            if (!_repository.CountryExists(countryId))
+            {
+                return StatusCode(404, "Not found country.");
+            }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var countryMap = mapper.Map<Country>(country);
+            if (!_repository.UpdateCountry(countryMap))
+            {
+                return StatusCode(500, "Something went wrong.");
+            }
+            return NoContent();
+        }
+
+        [HttpDelete("{countryId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(200)]
+        public IActionResult DeleteCountry(int countryId)
+        {
+            var country = _repository.GetCountry(countryId);
+            if (country == null)
+            {
+                return NotFound("Dont have this country Id");
+            }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            if (!_repository.DeleteCountry(countryId))
+            {
+                return StatusCode(500, "Something went wrong.");
+            }
+            return Ok("Deleted successfully");
         }
     }
 }

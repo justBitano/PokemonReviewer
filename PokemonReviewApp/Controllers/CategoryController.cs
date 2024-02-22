@@ -13,7 +13,7 @@ namespace PokemonReviewApp.Controllers
     [ApiController]
     public class CategoryController : Controller
     {
-        private readonly ICategoryRepository  _repository;
+        private readonly ICategoryRepository _repository;
         private readonly IMapper mapper;
         public CategoryController(ICategoryRepository _repository, IMapper mapper)
         {
@@ -36,7 +36,7 @@ namespace PokemonReviewApp.Controllers
         [ProducesResponseType(400)]
         public IActionResult GetCategory(int categoryId)
         {
-            if (!_repository.CategoriesExists(categoryId)){
+            if (!_repository.CategoriesExists(categoryId)) {
                 return NotFound();
             }
             var list = mapper.Map<CategoryDTO>(_repository.GetCategory(categoryId));
@@ -72,20 +72,70 @@ namespace PokemonReviewApp.Controllers
 
             }
             var categories = _repository.GetCategories().Where(c => c.Name.Trim().ToUpper() ==  model.Name.Trim().ToUpper()).FirstOrDefault();
-            if(categories != null)
+            if (categories != null)
             {
-                ModelState.AddModelError("", "This category already exists.");
-                return StatusCode(442, ModelState);
+                return StatusCode(442, "This category already exists.");
             }
             var reviewerMap = mapper.Map<Category>(model);
             var reviewer = _repository.CreateCategory(reviewerMap);
             if (!reviewer)
             {
-                ModelState.AddModelError("", "Something went wrong while saving.");
-                return StatusCode(500, ModelState);
+                return StatusCode(500, "Something went wrong while saving.");
             }
             return Ok("Successfully created.");
         }
+
+        [HttpPut("{categoryId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public IActionResult UpdateCategory(int categoryId, [FromBody] CategoryDTO category)
+        {
+            if(category == null)
+            {
+                return StatusCode(400, "Something wrong with category.");
+            }
+            if(categoryId != category.Id)
+            {
+                return BadRequest(ModelState);
+            }
+            if (!_repository.CategoriesExists(categoryId))
+            {
+                return StatusCode(404, "Not found category.");
+
+            }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var categoryMap = mapper.Map<Category>(category);
+            if(!_repository.UpdateCategory(categoryMap))
+            {
+                return StatusCode(500, "Something went wrong.");
+            }
+            return NoContent();
+        }
+
+        [HttpDelete("{categoryId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(200)]
+         public IActionResult DeleteCategory(int categoryId)
+         {
+            var category = _repository.GetCategory(categoryId);
+            if(category == null)
+            {
+                return NotFound("Dont have this categoryId");
+            }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            if (!_repository.Delete(categoryId))
+            {
+                return StatusCode(500, "Something went wrong.");
+            }
+            return Ok("Deleted successfully");
+         }
 
     }
 }

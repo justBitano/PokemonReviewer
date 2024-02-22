@@ -22,6 +22,13 @@ namespace PokemonReviewApp.Repositories
             return Save();
         }
 
+        public bool Delete(int id)
+        {
+            var category = dataContext.Categories.FirstOrDefault(c => c.Id == id);
+            dataContext.Remove(category);
+            return Save();
+        }
+
         public ICollection<Category> GetCategories()
         {
             return dataContext.Categories.OrderBy(p => p.Id).ToList();
@@ -42,6 +49,12 @@ namespace PokemonReviewApp.Repositories
         {
             var saved = dataContext.SaveChanges();
             return saved > 0 ? true : false;
+        }
+
+        public bool UpdateCategory(Category category)
+        {
+            dataContext.Update(category); 
+            return Save();
         }
     }
 }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using PokemonReviewApp.DTO;
 using PokemonReviewApp.Interfaces;
 using PokemonReviewApp.Models;
+using PokemonReviewApp.Repositories;
 
 namespace PokemonReviewApp.Controllers
 {
@@ -14,10 +15,13 @@ namespace PokemonReviewApp.Controllers
     {
         private readonly IReviewerRepository _repository;
         private readonly IMapper mapper;
-        public ReviewerController(IReviewerRepository pokemonRepository, IMapper mapper)
+        private readonly IReviewRepository reviewRepository;
+
+        public ReviewerController(IReviewerRepository pokemonRepository, IMapper mapper, IReviewRepository reviewRepository)
         {
             this._repository = pokemonRepository;
             this.mapper = mapper;
+            this.reviewRepository=reviewRepository;
         }
 
         [HttpGet]
@@ -82,6 +86,73 @@ namespace PokemonReviewApp.Controllers
                 return StatusCode(500, "Something went wrong while saving.");
             }
             return Ok("Successfully created.");
+        }
+
+        [HttpPut("{reviewerId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public IActionResult UpdateReviewer(int reviewerId, [FromBody] ReviewerDTO model)
+        {
+            if (model == null)
+            {
+                return StatusCode(400, "Something wrong with this reviewer.");
+            }
+            if (reviewerId != model.Id)
+            {
+                return BadRequest("Not same id reviewer.");
+            }
+            if (!_repository.ReviewerExists(reviewerId))
+            {
+                return StatusCode(404, "Not found review.");
+            }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var result = mapper.Map<Reviewer>(model);
+            if (!_repository.UpdateReviewer(result))
+            {
+                return StatusCode(500, "Something went wrong.");
+            }
+            return NoContent();
+        }
+
+        [HttpDelete("{reviewerId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(200)]
+        public IActionResult DeleteReviewer(int reviewerId)
+        {
+            var model = _repository.GetReviewer(reviewerId);
+            List<Review> listReview = (List<Review>)_repository.GetReviewsByReviewer(reviewerId);
+            if (model == null)
+            {
+                return NotFound("Dont have this pokemon Id");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            if (listReview.Count < 1)
+            {
+                if (!_repository.DeleteReviewer(reviewerId))
+                {
+                    return StatusCode(500, "Something went wrong while delete pokemon.");
+                }
+            }
+            else
+            {
+                if (!reviewRepository.DeleteListReview(listReview.ToList()))
+                {
+                    return StatusCode(500, "Something went wrong while delete reviews.");
+                }
+                if (!_repository.DeleteReviewer(reviewerId))
+                {
+                    return StatusCode(500, "Something went wrong while delete pokemon.");
+                }
+            }
+            return Ok("Deleted successfully");
         }
 
     }
